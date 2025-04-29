@@ -35,6 +35,13 @@
                 <label><input type="radio" name="difficulty" value="medium"> 中等</label>
                 <label><input type="radio" name="difficulty" value="hard"> 困难</label>
             </div>
+
+            <div class="option-group" id="onlineOptions" style="display: none;">
+                <label>房间号:</label>
+                <input type="text" id="roomId" placeholder="输入房间号">
+                <button id="joinRoomBtn">加入房间</button>
+                <button id="createRoomBtn">创建房间</button>
+            </div>
             
             <button id="startBtn">开始游戏</button>
         </div>
@@ -60,7 +67,6 @@
             <div>胜利: <span id="wins">0</span> | 平局: <span id="draws">0</span> | 失败: <span id="losses">0</span></div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
