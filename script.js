@@ -79,13 +79,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         playAgainBtn.style.display = "none";
+        console.log("开始游戏按钮被点击");
     });
 
     // 创建房间
     createRoomBtn.addEventListener("click", () => {
-        socket = io(); // 假设使用 Socket.IO
+        if (!socket) {
+            socket = io(); // 初始化 Socket.IO
+            console.log("Socket.IO 已初始化");
+        }
+
+        console.log("创建房间按钮被点击");
         socket.emit("createRoom", {}, (response) => {
-            if (response.success) {
+            if (response && response.success) {
                 roomId = response.roomId;
                 currentPlayer = "X"; // 房主默认先手
                 status.textContent = `已创建房间，房间号: ${roomId}，您是 X`;
@@ -97,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 gameActive = true;
             } else {
                 onlineStatus.textContent = "创建房间失败，请重试！";
+                console.error("创建房间失败，服务器未返回成功响应");
             }
         });
 
@@ -105,13 +112,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 加入房间
     joinRoomBtn.addEventListener("click", () => {
+        if (!socket) socket = io(); // 确保 Socket.IO 已初始化
+        console.log("加入房间按钮被点击");
         const inputRoomId = roomIdInput.value.trim();
         if (!inputRoomId) {
             onlineStatus.textContent = "请输入有效的房间号！";
             return;
         }
 
-        socket = io(); // 假设使用 Socket.IO
         socket.emit("joinRoom", { roomId: inputRoomId }, (response) => {
             if (response.success) {
                 roomId = inputRoomId;
@@ -133,6 +141,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 设置 Socket.IO 事件监听
     function setupSocketListeners() {
+        if (!socket) {
+            console.error("Socket.IO 未初始化，无法设置事件监听");
+            return;
+        }
+
         socket.on("updateBoard", (data) => {
             // 更新棋盘状态
             cells[data.index].textContent = data.player;
@@ -170,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         socket.on("error", (error) => {
             onlineStatus.textContent = `错误: ${error.message}`;
+            console.error("Socket.IO 错误:", error);
         });
     }
 
@@ -213,6 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 重置游戏
     resetBtn.addEventListener("click", () => {
+        console.log("重置游戏按钮被点击");
         board.style.display = "none";
         resetBtn.style.display = "none";
         startBtn.style.display = "inline-block";
@@ -228,6 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 再次游戏逻辑
     playAgainBtn.addEventListener("click", () => {
+        console.log("再次游戏按钮被点击");
         if (socket && roomId) {
             socket.emit("restartGame", { roomId });
         }
@@ -361,5 +377,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return bestMove;
+    }
+
+    // 确保按钮元素存在并绑定事件监听器
+    if (!startBtn || !createRoomBtn || !joinRoomBtn || !resetBtn || !playAgainBtn) {
+        console.error("某些按钮未正确初始化，请检查 HTML 文件中的按钮 ID 是否正确");
     }
 });
