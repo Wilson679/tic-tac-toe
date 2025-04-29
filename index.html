@@ -1,24 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>井字棋游戏</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>井字棋游戏 - 增强版</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>井字棋</h1>
-    <div id="status">轮到: X</div>
-    <div class="board" id="board">
-        <div class="cell" data-index="0"></div>
-        <div class="cell" data-index="1"></div>
-        <div class="cell" data-index="2"></div>
-        <div class="cell" data-index="3"></div>
-        <div class="cell" data-index="4"></div>
-        <div class="cell" data-index="5"></div>
-        <div class="cell" data-index="6"></div>
-        <div class="cell" data-index="7"></div>
-        <div class="cell" data-index="8"></div>
+    <div class="game-container">
+        <h1>井字棋游戏</h1>
+        
+        <div class="options">
+            <div class="option-group">
+                <label>先手玩家:</label>
+                <label><input type="radio" name="firstPlayer" value="X" checked> X</label>
+                <label><input type="radio" name="firstPlayer" value="O"> O</label>
+            </div>
+            
+            <div class="option-group">
+                <label>游戏模式:</label>
+                <label><input type="radio" name="gameMode" value="twoPlayer" checked> 双人模式</label>
+                <label><input type="radio" name="gameMode" value="singlePlayer"> 单人模式</label>
+            </div>
+            
+            <button id="startBtn">开始游戏</button>
+        </div>
+        
+        <div id="status">请选择选项并点击"开始游戏"</div>
+        
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        
+        <button id="resetBtn">重新开始</button>
+        
+        <div class="stats">
+            <div>胜利: <span id="wins">0</span> | 平局: <span id="draws">0</span> | 失败: <span id="losses">0</span></div>
+        </div>
     </div>
-    <button onclick="resetGame()">重新开始</button>
 
     <script src="script.js"></script>
 </body>
