@@ -8,11 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const difficultyOptions = document.getElementById("difficultyOptions");
     let currentPlayer = "X";
     let gameMode = "twoPlayer";
+    let connectionMode = "offline";
     let difficulty = "easy";
     let gameActive = false;
 
     // 初始化游戏
     startBtn.addEventListener("click", () => {
+        connectionMode = document.querySelector('input[name="connectionMode"]:checked').value;
         gameMode = document.querySelector('input[name="gameMode"]:checked').value;
         currentPlayer = document.querySelector('input[name="firstPlayer"]:checked').value;
         difficulty = document.querySelector('input[name="difficulty"]:checked')?.value || "easy";
@@ -32,6 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
             cell.textContent = "";
             cell.classList.remove("x", "o");
         });
+
+        if (connectionMode === "online") {
+            initializeOnlineGame();
+        }
     });
 
     // 处理格子点击
@@ -70,6 +76,12 @@ document.addEventListener("DOMContentLoaded", () => {
         status.textContent = "请选择选项并点击\"开始游戏\"";
         gameActive = false;
     });
+
+    // 初始化在线游戏
+    function initializeOnlineGame() {
+        // 在这里实现在线游戏的初始化逻辑，例如连接到服务器
+        console.log("在线模式已启用");
+    }
 
     // 电脑移动逻辑
     function computerMove() {
