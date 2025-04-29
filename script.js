@@ -27,6 +27,42 @@ document.addEventListener("DOMContentLoaded", () => {
     const gameModeRadios = document.querySelectorAll('input[name="gameMode"]');
     const connectionModeRadios = document.querySelectorAll('input[name="connectionMode"]');
 
+    // 确保私密信息不会被上传
+    // 提醒：不要在代码中访问 Cookies、LocalStorage 或其他敏感信息
+    console.log("提醒：请勿在代码中上传浏览器的私密信息，如 Cookies 或 LocalStorage。");
+
+    // 添加私密消息输入框和发送按钮
+    const privateMessageContainer = document.createElement("div");
+    privateMessageContainer.id = "privateMessageContainer";
+    privateMessageContainer.style.display = "none";
+    privateMessageContainer.innerHTML = `
+        <input type="text" id="privateMessageInput" placeholder="输入私密消息" />
+        <button id="sendPrivateMessageBtn">发送</button>
+        <p id="privateMessageStatus" style="color: #888; font-size: 14px; margin-top: 5px;"></p>
+    `;
+    document.querySelector(".game-container").appendChild(privateMessageContainer);
+
+    const privateMessageInput = document.getElementById("privateMessageInput");
+    const sendPrivateMessageBtn = document.getElementById("sendPrivateMessageBtn");
+    const privateMessageStatus = document.getElementById("privateMessageStatus");
+
+    // 监听发送私密消息按钮
+    sendPrivateMessageBtn.addEventListener("click", () => {
+        const message = privateMessageInput.value.trim();
+        if (!message) {
+            privateMessageStatus.textContent = "消息不能为空！";
+            return;
+        }
+
+        if (socket && roomId) {
+            socket.emit("privateMessage", { roomId, message });
+            privateMessageStatus.textContent = "私密消息已发送！";
+            privateMessageInput.value = "";
+        } else {
+            privateMessageStatus.textContent = "无法发送消息，请检查连接状态！";
+        }
+    });
+
     // 更新选项显示逻辑
     function updateOptions() {
         const connectionMode = document.querySelector('input[name="connectionMode"]:checked').value;
@@ -43,6 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 difficultyOptions.style.display = "none";
             }
         }
+
+        privateMessageContainer.style.display = connectionMode === "online" ? "block" : "none";
     }
 
     // 监听模式选择变化
@@ -85,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 创建房间
     createRoomBtn.addEventListener("click", () => {
         if (!socket) {
-            socket = io(); // 初始化 Socket.IO
+            socket = io("https://your-socket-server.com"); // 替换为实际的服务器地址
             console.log("Socket.IO 已初始化");
         }
 
@@ -184,6 +222,10 @@ document.addEventListener("DOMContentLoaded", () => {
         socket.on("error", (error) => {
             onlineStatus.textContent = `错误: ${error.message}`;
             console.error("Socket.IO 错误:", error);
+        });
+
+        socket.on("privateMessage", (data) => {
+            alert(`私密消息: ${data.message}`);
         });
     }
 
@@ -383,4 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!startBtn || !createRoomBtn || !joinRoomBtn || !resetBtn || !playAgainBtn) {
         console.error("某些按钮未正确初始化，请检查 HTML 文件中的按钮 ID 是否正确");
     }
+
+    // 提醒：不要在代码中上传浏览器的私密信息
+    console.log("提醒：确保代码中没有上传 Cookies、LocalStorage 或其他敏感信息的逻辑。");
 });
