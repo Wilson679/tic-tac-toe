@@ -74,14 +74,6 @@ io.on("connection", (socket) => {
             }
         }
     });
-
-    // 监听私密消息
-    socket.on("privateMessage", ({ roomId, message }) => {
-        if (rooms[roomId]) {
-            socket.to(roomId).emit("privateMessage", { message });
-            console.log(`私密消息发送至房间 ${roomId}: ${message}`);
-        }
-    });
 });
 
 server.listen(PORT, () => {
