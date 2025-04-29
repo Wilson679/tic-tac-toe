@@ -86,8 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
         socket = io(); // 假设使用 Socket.IO
         socket.emit("createRoom", {}, (response) => {
             if (response.success) {
-                roomId = response.roomId;
-                status.textContent = `已创建房间，房间号: ${roomId}`;
+                currentPlayer = "X"; // 房主默认先手
+                status.textContent = `已创建房间，房间号: ${roomId}，您是 X`;
                 onlineStatus.textContent = "等待其他玩家加入...";
                 onlineOptions.style.display = "none";
                 board.style.display = "grid";
@@ -113,8 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
         socket = io(); // 假设使用 Socket.IO
         socket.emit("joinRoom", { roomId: inputRoomId }, (response) => {
             if (response.success) {
-                roomId = inputRoomId;
-                status.textContent = `已加入房间，房间号: ${roomId}`;
+                currentPlayer = "O"; // 加入者默认后手
+                status.textContent = `已加入房间，房间号: ${roomId}，您是 O`;
                 onlineStatus.textContent = "已成功加入房间，等待对手操作...";
                 onlineOptions.style.display = "none";
                 board.style.display = "grid";
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cells[data.index].textContent = data.player;
             cells[data.index].classList.add(data.player.toLowerCase());
             currentPlayer = data.nextPlayer;
-            status.textContent = `当前玩家: ${currentPlayer}`;
+            status.textContent = `当前玩家: ${currentPlayer === "X" ? "X (您)" : "O (对手)"}`;
         });
 
         socket.on("gameOver", (data) => {
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         socket.on("playerLeft", () => {
-            onlineStatus.textContent = "对手已离开房间，等待新玩家加入...";
+            onlineStatus.textContent = "对手已离开房间，游戏结束。";
             gameActive = false;
         });
 
@@ -162,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
             status.textContent = `当前玩家: ${currentPlayer}`;
             gameActive = true;
             playAgainBtn.style.display = "none";
+            onlineStatus.textContent = "游戏已重启，等待对手操作。";
         });
 
         socket.on("error", (error) => {
@@ -202,30 +203,38 @@ document.addEventListener("DOMContentLoaded", () => {
     // 处理格子点击
     cells.forEach(cell => {
         cell.addEventListener("click", () => {
-            if (!gameActive || cell.textContent) return;
+            if (!gameActive || cell.textContent || connectionMode !== "online") return;
+
+            if ((currentPlayer === "X" && !socket.id.includes("O")) || (currentPlayer === "O" && !socket.id.includes("X"))) {
+                alert("请等待您的回合！");
+                return;
+            }
 
             cell.textContent = currentPlayer;
             cell.classList.add(currentPlayer.toLowerCase());
+            socket.emit("makeMove", {
+                roomId,
+                index: cell.dataset.index,
+                player: currentPlayer,
+                nextPlayer: currentPlayer === "X" ? "O" : "X"
+            });
 
             if (checkWin(currentPlayer)) {
                 status.textContent = `${currentPlayer} 赢了!`;
+                socket.emit("gameOver", { roomId, message: `${currentPlayer} 赢了!` });
                 gameActive = false;
                 return;
             }
 
             if (Array.from(cells).every(cell => cell.textContent)) {
                 status.textContent = "平局!";
+                socket.emit("gameOver", { roomId, message: "平局!" });
                 gameActive = false;
                 return;
             }
 
             currentPlayer = currentPlayer === "X" ? "O" : "X";
             status.textContent = `当前玩家: ${currentPlayer}`;
-
-            // 电脑移动逻辑
-            if (gameMode === "singlePlayer" && currentPlayer === "O") {
-                setTimeout(computerMove, 500);
-            }
         });
     });
 
