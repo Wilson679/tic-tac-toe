@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const roomIdInput = document.getElementById("roomId");
     const joinRoomBtn = document.getElementById("joinRoomBtn");
     const createRoomBtn = document.getElementById("createRoomBtn");
+    const onlineStatus = document.getElementById("onlineStatus");
     let currentPlayer = "X";
     let gameMode = "twoPlayer";
     let connectionMode = "offline";
@@ -16,6 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let gameActive = false;
     let socket = null;
     let roomId = null;
+
+    const playAgainBtn = document.createElement("button");
+    playAgainBtn.id = "playAgainBtn";
+    playAgainBtn.textContent = "再次游戏";
+    playAgainBtn.style.display = "none";
+    document.querySelector(".game-container").appendChild(playAgainBtn);
 
     // 初始化游戏
     startBtn.addEventListener("click", () => {
@@ -43,19 +50,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 cell.classList.remove("x", "o");
             });
         }
+        playAgainBtn.style.display = "none";
     });
 
     // 创建房间
     createRoomBtn.addEventListener("click", () => {
         socket = io(); // 假设使用 Socket.IO
         socket.emit("createRoom", {}, (response) => {
-            roomId = response.roomId;
-            status.textContent = `已创建房间，房间号: ${roomId}`;
-            onlineOptions.style.display = "none";
-            board.style.display = "grid";
-            resetBtn.style.display = "inline-block";
-            startBtn.style.display = "none";
-            gameActive = true;
+            if (response.success) {
+                roomId = response.roomId;
+                status.textContent = `已创建房间，房间号: ${roomId}`;
+                onlineStatus.textContent = "等待其他玩家加入...";
+                onlineOptions.style.display = "none";
+                board.style.display = "grid";
+                resetBtn.style.display = "inline-block";
+                startBtn.style.display = "none";
+                gameActive = true;
+            } else {
+                onlineStatus.textContent = "创建房间失败，请重试！";
+            }
         });
 
         setupSocketListeners();
@@ -65,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     joinRoomBtn.addEventListener("click", () => {
         const inputRoomId = roomIdInput.value.trim();
         if (!inputRoomId) {
-            alert("请输入房间号！");
+            onlineStatus.textContent = "请输入有效的房间号！";
             return;
         }
 
@@ -74,13 +87,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (response.success) {
                 roomId = inputRoomId;
                 status.textContent = `已加入房间，房间号: ${roomId}`;
+                onlineStatus.textContent = "已成功加入房间，等待对手操作...";
                 onlineOptions.style.display = "none";
                 board.style.display = "grid";
                 resetBtn.style.display = "inline-block";
                 startBtn.style.display = "none";
                 gameActive = true;
             } else {
-                alert("加入房间失败，请检查房间号！");
+                onlineStatus.textContent = "加入房间失败，请检查房间号！";
             }
         });
 
@@ -100,6 +114,14 @@ document.addEventListener("DOMContentLoaded", () => {
             status.textContent = data.message;
             gameActive = false;
         });
+
+        socket.on("playerJoined", () => {
+            onlineStatus.textContent = "对手已加入，开始游戏！";
+        });
+
+        socket.on("error", (error) => {
+            onlineStatus.textContent = `错误: ${error.message}`;
+        });
     }
 
     // 处理格子点击
@@ -107,35 +129,41 @@ document.addEventListener("DOMContentLoaded", () => {
         cell.addEventListener("click", () => {
             if (!gameActive || cell.textContent) return;
 
-            if (connectionMode === "online") {
-                socket.emit("makeMove", {
-                    roomId,
-                    index: cell.dataset.index,
-                    player: currentPlayer
-                });
-            } else {
-                cell.textContent = currentPlayer;
-                cell.classList.add(currentPlayer.toLowerCase());
-                if (checkWin(currentPlayer)) {
-                    status.textContent = `${currentPlayer} 赢了!`;
-                    gameActive = false;
-                    return;
-                }
+            cell.textContent = currentPlayer;
+            cell.classList.add(currentPlayer.toLowerCase());
 
-                if (Array.from(cells).every(cell => cell.textContent)) {
-                    status.textContent = "平局!";
-                    gameActive = false;
-                    return;
-                }
+            if (checkWin(currentPlayer)) {
+                status.textContent = `${currentPlayer} 赢了!`;
+                gameActive = false;
+                return;
+            }
 
-                currentPlayer = currentPlayer === "X" ? "O" : "X";
-                status.textContent = `当前玩家: ${currentPlayer}`;
+            if (Array.from(cells).every(cell => cell.textContent)) {
+                status.textContent = "平局!";
+                gameActive = false;
+                return;
+            }
 
-                if (gameMode === "singlePlayer" && currentPlayer === "O") {
-                    setTimeout(() => computerMove(), 500);
-                }
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            status.textContent = `当前玩家: ${currentPlayer}`;
+
+            // 电脑移动逻辑
+            if (gameMode === "singlePlayer" && currentPlayer === "O") {
+                setTimeout(computerMove, 500);
             }
         });
+    });
+
+    // 再次游戏逻辑
+    playAgainBtn.addEventListener("click", () => {
+        cells.forEach(cell => {
+            cell.textContent = "";
+            cell.classList.remove("x", "o");
+        });
+        currentPlayer = "X";
+        status.textContent = `当前玩家: ${currentPlayer}`;
+        gameActive = true;
+        playAgainBtn.style.display = "none";
     });
 
     // 重置游戏
@@ -146,9 +174,11 @@ document.addEventListener("DOMContentLoaded", () => {
         status.textContent = "请选择选项并点击\"开始游戏\"";
         gameActive = false;
         if (socket) {
+            socket.emit("leaveRoom", { roomId });
             socket.disconnect();
             socket = null;
         }
+        playAgainBtn.style.display = "none";
     });
 
     // 电脑移动逻辑

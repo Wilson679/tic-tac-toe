@@ -41,13 +41,14 @@
                 <input type="text" id="roomId" placeholder="输入房间号">
                 <button id="joinRoomBtn">加入房间</button>
                 <button id="createRoomBtn">创建房间</button>
+                <p id="onlineStatus" style="color: #888; font-size: 14px; margin-top: 5px;">请输入房间号或创建新房间。</p>
             </div>
             
             <button id="startBtn">开始游戏</button>
         </div>
         
         <div id="status">请选择选项并点击"开始游戏"</div>
-        
+
         <div class="board" id="board">
             <!-- Cells for the tic-tac-toe board -->
             <div class="cell" data-index="0"></div>
@@ -60,8 +61,9 @@
             <div class="cell" data-index="7"></div>
             <div class="cell" data-index="8"></div>
         </div>
-        
+
         <button id="resetBtn" style="display: none;">重新开始</button>
+        <button id="playAgainBtn" style="display: none;">再次游戏</button>
         
         <div class="stats">
             <div>胜利: <span id="wins">0</span> | 平局: <span id="draws">0</span> | 失败: <span id="losses">0</span></div>

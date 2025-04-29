@@ -115,3 +115,19 @@ input[type="radio"] {
     font-weight: bold;
     color: #0d47a1; /* Darker blue */
 }
+
+#playAgainBtn {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: 5px;
+    background-color: #ff9800; /* 橙色按钮 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#playAgainBtn:hover {
+    background-color: #f57c00; /* 深橙色 */
+}
