@@ -92,6 +92,10 @@ button:disabled {
     margin: 10px 0;
 }
 
+#difficultyOptions {
+    margin-top: 10px;
+}
+
 label {
     margin-right: 15px;
     cursor: pointer;

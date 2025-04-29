@@ -22,6 +22,13 @@
                 <label><input type="radio" name="gameMode" value="twoPlayer" checked> 双人模式</label>
                 <label><input type="radio" name="gameMode" value="singlePlayer"> 单人模式</label>
             </div>
+
+            <div class="option-group" id="difficultyOptions" style="display: none;">
+                <label>难度:</label>
+                <label><input type="radio" name="difficulty" value="easy" checked> 简单</label>
+                <label><input type="radio" name="difficulty" value="medium"> 中等</label>
+                <label><input type="radio" name="difficulty" value="hard"> 困难</label>
+            </div>
             
             <button id="startBtn">开始游戏</button>
         </div>
@@ -29,6 +36,7 @@
         <div id="status">请选择选项并点击"开始游戏"</div>
         
         <div class="board" id="board">
+            <!-- Cells for the tic-tac-toe board -->
             <div class="cell" data-index="0"></div>
             <div class="cell" data-index="1"></div>
             <div class="cell" data-index="2"></div>
@@ -40,7 +48,7 @@
             <div class="cell" data-index="8"></div>
         </div>
         
-        <button id="resetBtn">重新开始</button>
+        <button id="resetBtn" style="display: none;">重新开始</button>
         
         <div class="stats">
             <div>胜利: <span id="wins">0</span> | 平局: <span id="draws">0</span> | 失败: <span id="losses">0</span></div>
