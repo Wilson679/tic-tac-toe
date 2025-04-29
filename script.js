@@ -24,12 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
     playAgainBtn.style.display = "none";
     document.querySelector(".game-container").appendChild(playAgainBtn);
 
-    // 初始化游戏
-    startBtn.addEventListener("click", () => {
-        connectionMode = document.querySelector('input[name="connectionMode"]:checked').value;
-        gameMode = document.querySelector('input[name="gameMode"]:checked').value;
-        currentPlayer = document.querySelector('input[name="firstPlayer"]:checked').value;
-        difficulty = document.querySelector('input[name="difficulty"]:checked')?.value || "easy";
+    const gameModeRadios = document.querySelectorAll('input[name="gameMode"]');
+    const connectionModeRadios = document.querySelectorAll('input[name="connectionMode"]');
+
+    // 更新选项显示逻辑
+    function updateOptions() {
+        const connectionMode = document.querySelector('input[name="connectionMode"]:checked').value;
+        const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
 
         if (connectionMode === "online") {
             onlineOptions.style.display = "block";
@@ -38,18 +39,45 @@ document.addEventListener("DOMContentLoaded", () => {
             onlineOptions.style.display = "none";
             if (gameMode === "singlePlayer") {
                 difficultyOptions.style.display = "block";
+            } else {
+                difficultyOptions.style.display = "none";
             }
-            board.style.display = "grid";
-            resetBtn.style.display = "inline-block";
-            startBtn.style.display = "none";
-            status.textContent = `当前玩家: ${currentPlayer}`;
-            gameActive = true;
-
-            cells.forEach(cell => {
-                cell.textContent = "";
-                cell.classList.remove("x", "o");
-            });
         }
+    }
+
+    // 监听模式选择变化
+    connectionModeRadios.forEach(radio => {
+        radio.addEventListener("change", updateOptions);
+    });
+
+    gameModeRadios.forEach(radio => {
+        radio.addEventListener("change", updateOptions);
+    });
+
+    // 初始化游戏
+    startBtn.addEventListener("click", () => {
+        const connectionMode = document.querySelector('input[name="connectionMode"]:checked').value;
+        const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
+
+        if (connectionMode === "online" && gameMode === "singlePlayer") {
+            alert("在线模式下不支持单人模式，请选择双人模式！");
+            return;
+        }
+
+        currentPlayer = document.querySelector('input[name="firstPlayer"]:checked').value;
+        difficulty = document.querySelector('input[name="difficulty"]:checked')?.value || "easy";
+
+        board.style.display = "grid";
+        resetBtn.style.display = "inline-block";
+        startBtn.style.display = "none";
+        status.textContent = `当前玩家: ${currentPlayer}`;
+        gameActive = true;
+
+        cells.forEach(cell => {
+            cell.textContent = "";
+            cell.classList.remove("x", "o");
+        });
+
         playAgainBtn.style.display = "none";
     });
 
@@ -113,16 +141,63 @@ document.addEventListener("DOMContentLoaded", () => {
         socket.on("gameOver", (data) => {
             status.textContent = data.message;
             gameActive = false;
+            playAgainBtn.style.display = "inline-block";
         });
 
         socket.on("playerJoined", () => {
             onlineStatus.textContent = "对手已加入，开始游戏！";
         });
 
+        socket.on("playerLeft", () => {
+            onlineStatus.textContent = "对手已离开房间，等待新玩家加入...";
+            gameActive = false;
+        });
+
+        socket.on("restartGame", () => {
+            cells.forEach(cell => {
+                cell.textContent = "";
+                cell.classList.remove("x", "o");
+            });
+            currentPlayer = "X";
+            status.textContent = `当前玩家: ${currentPlayer}`;
+            gameActive = true;
+            playAgainBtn.style.display = "none";
+        });
+
         socket.on("error", (error) => {
             onlineStatus.textContent = `错误: ${error.message}`;
         });
     }
+
+    // 重置游戏
+    resetBtn.addEventListener("click", () => {
+        board.style.display = "none";
+        resetBtn.style.display = "none";
+        startBtn.style.display = "inline-block";
+        status.textContent = "请选择选项并点击\"开始游戏\"";
+        gameActive = false;
+        if (socket) {
+            socket.emit("leaveRoom", { roomId });
+            socket.disconnect();
+            socket = null;
+        }
+        playAgainBtn.style.display = "none";
+    });
+
+    // 再次游戏逻辑
+    playAgainBtn.addEventListener("click", () => {
+        if (socket && roomId) {
+            socket.emit("restartGame", { roomId });
+        }
+        cells.forEach(cell => {
+            cell.textContent = "";
+            cell.classList.remove("x", "o");
+        });
+        currentPlayer = "X";
+        status.textContent = `当前玩家: ${currentPlayer}`;
+        gameActive = true;
+        playAgainBtn.style.display = "none";
+    });
 
     // 处理格子点击
     cells.forEach(cell => {
@@ -152,33 +227,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 setTimeout(computerMove, 500);
             }
         });
-    });
-
-    // 再次游戏逻辑
-    playAgainBtn.addEventListener("click", () => {
-        cells.forEach(cell => {
-            cell.textContent = "";
-            cell.classList.remove("x", "o");
-        });
-        currentPlayer = "X";
-        status.textContent = `当前玩家: ${currentPlayer}`;
-        gameActive = true;
-        playAgainBtn.style.display = "none";
-    });
-
-    // 重置游戏
-    resetBtn.addEventListener("click", () => {
-        board.style.display = "none";
-        resetBtn.style.display = "none";
-        startBtn.style.display = "inline-block";
-        status.textContent = "请选择选项并点击\"开始游戏\"";
-        gameActive = false;
-        if (socket) {
-            socket.emit("leaveRoom", { roomId });
-            socket.disconnect();
-            socket = null;
-        }
-        playAgainBtn.style.display = "none";
     });
 
     // 电脑移动逻辑
