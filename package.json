@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build": "echo 'Add your build script here'"
+    "build": "your-build-command --output public"
   },
   "dependencies": {},
   "devDependencies": {}
