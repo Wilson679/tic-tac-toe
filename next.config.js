@@ -1,3 +1,3 @@
 module.exports = {
-  distDir: 'dist', // 将输出目录设置为 dist
+  distDir: 'dist', // 如果需要自定义输出目录
 };
