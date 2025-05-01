@@ -1,80 +1,79 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const board = document.getElementById("board");
-    const cells = Array.from({ length: 9 }, (_, i) => {
-        const cell = document.createElement("div");
-        cell.className = "cell";
-        cell.dataset.index = i;
-        board.appendChild(cell);
-        return cell;
-    });
-    const status = document.getElementById("status");
-    const startBtn = document.getElementById("startBtn");
-    const resetBtn = document.getElementById("resetBtn");
+    const root = document.getElementById("root");
+    const gameContainer = document.querySelector(".game-container");
+    const startGameBtn = document.getElementById("startGameBtn");
     const difficultyOptions = document.getElementById("difficultyOptions");
+    const connectionModeOptions = document.getElementById("connectionModeOptions");
     const onlineOptions = document.getElementById("onlineOptions");
     const roomIdInput = document.getElementById("roomId");
     const joinRoomBtn = document.getElementById("joinRoomBtn");
     const createRoomBtn = document.getElementById("createRoomBtn");
     const onlineStatus = document.getElementById("onlineStatus");
+    const board = document.getElementById("board");
+    const resetBtn = document.getElementById("resetBtn");
+    const status = document.getElementById("status");
     let currentPlayer = "X";
     let gameMode = "twoPlayer";
     let connectionMode = "offline";
     let difficulty = "easy";
     let gameActive = false;
-    let socket = null;
-    let roomId = null;
 
-    // 确保按钮元素存在并绑定事件监听器
-    if (!startBtn || !createRoomBtn || !joinRoomBtn || !resetBtn) {
-        console.error("某些按钮未正确初始化，请检查 HTML 文件中的按钮 ID 是否正确");
-        return; // 如果按钮未正确初始化，停止执行
+    // 更新选项显示逻辑
+    function updateOptions() {
+        const selectedGameMode = document.querySelector('input[name="gameMode"]:checked').value;
+        const selectedConnectionMode = document.querySelector('input[name="connectionMode"]:checked').value;
+
+        gameMode = selectedGameMode;
+        connectionMode = selectedConnectionMode;
+
+        if (gameMode === "singlePlayer") {
+            difficultyOptions.style.display = "block";
+        } else {
+            difficultyOptions.style.display = "none";
+        }
+
+        if (connectionMode === "online") {
+            onlineOptions.style.display = "block";
+        } else {
+            onlineOptions.style.display = "none";
+        }
     }
 
-    // 提醒：不要在代码中上传浏览器的私密信息
-    console.log("提醒：确保代码中没有上传 Cookies、LocalStorage 或其他敏感信息的逻辑。");
-
-    // 初始化 Ably 客户端
-    const ably = new Ably.Realtime.Promise({ key: "your-ably-api-key" }); // 替换为实际的 Ably API 密钥
-
-    // 创建房间
-    createRoomBtn.addEventListener("click", () => {
-        console.log("创建房间按钮被点击");
-        ably.channels.get("tic-tac-toe").publish("createRoom", { roomId: "12345" });
-        onlineStatus.textContent = "已创建房间，等待其他玩家加入...";
+    // 监听模式选择变化
+    document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
+        radio.addEventListener("change", updateOptions);
     });
 
-    // 加入房间
-    joinRoomBtn.addEventListener("click", () => {
-        const inputRoomId = roomIdInput.value.trim();
-        if (!inputRoomId) {
-            onlineStatus.textContent = "请输入有效的房间号！";
-            return;
-        }
-        console.log("加入房间按钮被点击");
-        ably.channels.get("tic-tac-toe").publish("joinRoom", { roomId: inputRoomId });
-        onlineStatus.textContent = `已加入房间: ${inputRoomId}`;
+    document.querySelectorAll('input[name="connectionMode"]').forEach(radio => {
+        radio.addEventListener("change", updateOptions);
     });
 
-    // 监听 Ably 消息
-    const channel = ably.channels.get("tic-tac-toe");
-    channel.subscribe("updateBoard", (message) => {
-        const { index, player } = message.data;
-        cells[index].textContent = player;
-        cells[index].classList.add(player.toLowerCase());
-        currentPlayer = player === "X" ? "O" : "X";
+    // 开始游戏按钮逻辑
+    startGameBtn.addEventListener("click", () => {
+        root.style.display = "none"; // 隐藏开始菜单
+        gameContainer.style.display = "block"; // 显示游戏界面
+        board.style.display = "grid";
+        resetBtn.style.display = "inline-block";
         status.textContent = `当前玩家: ${currentPlayer}`;
+        gameActive = true;
+
+        // 初始化棋盘
+        Array.from(board.children).forEach(cell => {
+            cell.textContent = "";
+            cell.classList.remove("x", "o");
+        });
     });
 
-    channel.subscribe("gameOver", (message) => {
-        status.textContent = message.data.message;
-        gameActive = false;
+    // 创建房间按钮逻辑
+    createRoomBtn.addEventListener("click", () => {
+        const roomId = Math.random().toString(36).substring(2, 8); // 生成随机房间号
+        onlineStatus.textContent = `房间已创建，房间号: ${roomId}`;
     });
 
-    const playAgainBtn = document.createElement("button");
-    playAgainBtn.id = "playAgainBtn";
-    playAgainBtn.textContent = "再次游戏";
-    playAgainBtn.style.display = "none";
-    document.querySelector(".game-container").appendChild(playAgainBtn);
+    // 加入房间按钮逻辑
+    joinRoomBtn.addEventListener("click", () => {
+        const roomId = roomIdInput.value.trim();
+        if (!roomId) {
 
     const gameModeRadios = document.querySelectorAll('input[name="gameMode"]');
     const connectionModeRadios = document.querySelectorAll('input[name="connectionMode"]');

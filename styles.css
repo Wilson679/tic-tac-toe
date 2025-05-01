@@ -13,39 +13,39 @@ h1 {
   color: #333;
 }
 
-.game-container {
-  max-width: 500px;
-  margin: 0 auto;
-  background-color: #ffffff; /* Keep white for contrast */
-  border: 2px solid #90caf9; /* Light blue border */
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.board {
-  display: grid;
-  grid-template-columns: repeat(3, 100px);
-  grid-gap: 5px;
-  justify-content: center;
-  margin: 20px auto;
-}
-
-.cell {
-  width: 100px;
-  height: 100px;
+.container {
+  text-align: center;
   background: #fff;
-  border: 1px solid #ccc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  font-weight: bold;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.options {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #e3f2fd; /* Light blue */
+  border-radius: 8px;
+}
+
+.option-group {
+  margin: 10px 0;
+}
+
+#difficultyOptions {
+  margin-top: 10px;
+}
+
+label {
+  margin-right: 15px;
   cursor: pointer;
 }
 
-.cell.x {
-  color: #ff0000;
+input[type="radio"] {
+  margin-right: 5px;
+}
+
+button {
 }
 
 .cell.o {
@@ -107,6 +107,16 @@ label {
 
 input[type="radio"] {
   margin-right: 5px;
+}
+
+#onlineOptions {
+  margin-top: 15px;
+}
+
+#onlineStatus {
+  margin-top: 10px;
+  color: #1e88e5;
+  font-size: 14px;
 }
 
 .stats {

@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     heading.textContent = "Welcome to Tic-Tac-Toe";
 
     const paragraph = document.createElement("p");
-    paragraph.textContent = "This is the homepage of your Next.js application.";
+    paragraph.textContent = "This is a simple Tic-Tac-Toe game. You can play against a friend or the computer.";
 
     container.appendChild(heading);
     container.appendChild(paragraph);

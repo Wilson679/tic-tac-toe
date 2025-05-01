@@ -4,28 +4,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tic-Tac-Toe</title>
-  <link rel="stylesheet" href="./main/styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="root">
     <div class="container">
       <h1>Welcome to Tic-Tac-Toe</h1>
-      <p>点击下方按钮进入游戏。</p>
+      <p>请选择游戏模式和难度。</p>
+      <div class="options">
+        <div class="option-group">
+          <label>
+            <input type="radio" name="gameMode" value="twoPlayer" checked>
+            双人模式
+          </label>
+          <label>
+            <input type="radio" name="gameMode" value="singlePlayer">
+            电脑模式
+          </label>
+        </div>
+        <div id="difficultyOptions" class="option-group" style="display: none;">
+          <label>
+            <input type="radio" name="difficulty" value="easy" checked>
+            简单
+          </label>
+          <label>
+            <input type="radio" name="difficulty" value="medium">
+            中等
+          </label>
+          <label>
+            <input type="radio" name="difficulty" value="hard">
+            困难
+          </label>
+        </div>
+        <div id="connectionModeOptions" class="option-group">
+          <label>
+            <input type="radio" name="connectionMode" value="offline" checked>
+            离线模式
+          </label>
+          <label>
+            <input type="radio" name="connectionMode" value="online">
+            在线模式
+          </label>
+        </div>
+        <div id="onlineOptions" style="display: none;">
+          <input type="text" id="roomId" placeholder="房间号">
+          <button id="joinRoomBtn">加入房间</button>
+          <button id="createRoomBtn">创建房间</button>
+          <div id="onlineStatus"></div>
+        </div>
+      </div>
+      <button id="startGameBtn">开始游戏</button>
     </div>
   </div>
   <div class="game-container">
     <div id="board" class="board"></div>
     <div id="status" class="status"></div>
-    <button id="startBtn">开始游戏</button>
     <button id="resetBtn" style="display: none;">重置游戏</button>
-    <div id="difficultyOptions" style="display: none;"></div>
-    <div id="onlineOptions" style="display: none;">
-      <input type="text" id="roomId" placeholder="房间号">
-      <button id="joinRoomBtn">加入房间</button>
-      <button id="createRoomBtn">创建房间</button>
-      <div id="onlineStatus"></div>
-    </div>
   </div>
-  <script src="./main/script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
