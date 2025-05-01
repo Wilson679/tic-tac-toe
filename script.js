@@ -1,6 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
     const board = document.getElementById("board");
-    const cells = document.querySelectorAll(".cell");
+    const cells = Array.from({ length: 9 }, (_, i) => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.index = i;
+        board.appendChild(cell);
+        return cell;
+    });
     const status = document.getElementById("status");
     const startBtn = document.getElementById("startBtn");
     const resetBtn = document.getElementById("resetBtn");
