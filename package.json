@@ -1,0 +1,12 @@
+{
+  "name": "tic-tac-toe",
+  "version": "1.0.0",
+  "description": "A simple tic-tac-toe game",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "echo 'Add your build script here'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
