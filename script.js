@@ -18,6 +18,52 @@ document.addEventListener("DOMContentLoaded", () => {
     let socket = null;
     let roomId = null;
 
+    // 确保按钮元素存在并绑定事件监听器
+    if (!startBtn || !createRoomBtn || !joinRoomBtn || !resetBtn) {
+        console.error("某些按钮未正确初始化，请检查 HTML 文件中的按钮 ID 是否正确");
+        return; // 如果按钮未正确初始化，停止执行
+    }
+
+    // 提醒：不要在代码中上传浏览器的私密信息
+    console.log("提醒：确保代码中没有上传 Cookies、LocalStorage 或其他敏感信息的逻辑。");
+
+    // 初始化 Ably 客户端
+    const ably = new Ably.Realtime.Promise({ key: "your-ably-api-key" }); // 替换为实际的 Ably API 密钥
+
+    // 创建房间
+    createRoomBtn.addEventListener("click", () => {
+        console.log("创建房间按钮被点击");
+        ably.channels.get("tic-tac-toe").publish("createRoom", { roomId: "12345" });
+        onlineStatus.textContent = "已创建房间，等待其他玩家加入...";
+    });
+
+    // 加入房间
+    joinRoomBtn.addEventListener("click", () => {
+        const inputRoomId = roomIdInput.value.trim();
+        if (!inputRoomId) {
+            onlineStatus.textContent = "请输入有效的房间号！";
+            return;
+        }
+        console.log("加入房间按钮被点击");
+        ably.channels.get("tic-tac-toe").publish("joinRoom", { roomId: inputRoomId });
+        onlineStatus.textContent = `已加入房间: ${inputRoomId}`;
+    });
+
+    // 监听 Ably 消息
+    const channel = ably.channels.get("tic-tac-toe");
+    channel.subscribe("updateBoard", (message) => {
+        const { index, player } = message.data;
+        cells[index].textContent = player;
+        cells[index].classList.add(player.toLowerCase());
+        currentPlayer = player === "X" ? "O" : "X";
+        status.textContent = `当前玩家: ${currentPlayer}`;
+    });
+
+    channel.subscribe("gameOver", (message) => {
+        status.textContent = message.data.message;
+        gameActive = false;
+    });
+
     const playAgainBtn = document.createElement("button");
     playAgainBtn.id = "playAgainBtn";
     playAgainBtn.textContent = "再次游戏";
@@ -421,11 +467,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return bestMove;
     }
 
-    // 确保按钮元素存在并绑定事件监听器
-    if (!startBtn || !createRoomBtn || !joinRoomBtn || !resetBtn || !playAgainBtn) {
-        console.error("某些按钮未正确初始化，请检查 HTML 文件中的按钮 ID 是否正确");
-    }
+    const root = document.getElementById("root");
 
-    // 提醒：不要在代码中上传浏览器的私密信息
-    console.log("提醒：确保代码中没有上传 Cookies、LocalStorage 或其他敏感信息的逻辑。");
+    const container = document.createElement("div");
+    container.className = "container";
+
+    const heading = document.createElement("h1");
+    heading.textContent = "Welcome to Tic-Tac-Toe";
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = "This is the homepage of your Next.js application.";
+
+    container.appendChild(heading);
+    container.appendChild(paragraph);
+    root.appendChild(container);
 });
