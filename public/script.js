@@ -17,7 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let gameMode = "twoPlayer"; // 默认双人模式
     let difficulty = "easy"; // 默认简单模式
     let roomId = null;
-    let socket = null; // WebSocket 连接
+    let ablyChannel = null; // Ably 通道
+
+    // 初始化 Ably 客户端
+    const ably = new Ably.Realtime.Promise({ key: "your-ably-api-key" }); // 替换为您的 Ably API 密钥
 
     // 初始化棋盘
     function initializeBoard() {
@@ -45,8 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
             gameActive = false;
             resetBtn.style.display = "block";
             replayBtn.style.display = "block";
-            if (gameMode === "twoPlayer" && socket) {
-                socket.emit("gameOver", { roomId, winner: currentPlayer });
+            if (gameMode === "twoPlayer" && ablyChannel) {
+                ablyChannel.publish("gameOver", { winner: currentPlayer });
             }
             return;
         }
@@ -56,8 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
             gameActive = false;
             resetBtn.style.display = "block";
             replayBtn.style.display = "block";
-            if (gameMode === "twoPlayer" && socket) {
-                socket.emit("gameOver", { roomId, winner: "draw" });
+            if (gameMode === "twoPlayer" && ablyChannel) {
+                ablyChannel.publish("gameOver", { winner: "draw" });
             }
             return;
         }
@@ -66,8 +69,8 @@ document.addEventListener("DOMContentLoaded", () => {
             currentPlayer = "O";
             status.textContent = `当前玩家: ${currentPlayer}`;
             setTimeout(computerMove, 500); // 电脑延迟移动
-        } else if (gameMode === "twoPlayer" && socket) {
-            socket.emit("makeMove", { roomId, index: cell.dataset.index, player: currentPlayer });
+        } else if (gameMode === "twoPlayer" && ablyChannel) {
+            ablyChannel.publish("makeMove", { index: cell.dataset.index, player: currentPlayer });
             currentPlayer = currentPlayer === "X" ? "O" : "X";
             status.textContent = `当前玩家: ${currentPlayer}`;
         }
@@ -138,71 +141,74 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 创建房间
-    createRoomBtn.addEventListener("click", () => {
+    createRoomBtn.addEventListener("click", async () => {
         roomId = Math.random().toString(36).substring(2, 8); // 生成随机房间号
         onlineStatus.textContent = `房间已创建，房间号: ${roomId}`;
-        socket = io(); // 初始化 WebSocket 连接
-        socket.emit("createRoom", { roomId });
+        ablyChannel = await ably.channels.get(`tic-tac-toe-${roomId}`);
 
-        socket.on("playerJoined", () => {
+        ablyChannel.subscribe("playerJoined", () => {
             onlineStatus.textContent = "玩家已加入，游戏开始！";
             initializeBoard();
         });
 
-        socket.on("makeMove", (data) => {
-            const cell = board.children[data.index];
-            cell.textContent = data.player;
-            cell.classList.add(data.player.toLowerCase());
-            currentPlayer = data.player === "X" ? "O" : "X";
+        ablyChannel.subscribe("makeMove", (message) => {
+            const { index, player } = message.data;
+            const cell = board.children[index];
+            cell.textContent = player;
+            cell.classList.add(player.toLowerCase());
+            currentPlayer = player === "X" ? "O" : "X";
             status.textContent = `当前玩家: ${currentPlayer}`;
         });
 
-        socket.on("gameOver", (data) => {
-            if (data.winner === "draw") {
+        ablyChannel.subscribe("gameOver", (message) => {
+            const { winner } = message.data;
+            if (winner === "draw") {
                 status.textContent = "平局!";
             } else {
-                status.textContent = `${data.winner} 赢了!`;
+                status.textContent = `${winner} 赢了!`;
             }
             gameActive = false;
             resetBtn.style.display = "block";
             replayBtn.style.display = "block";
         });
+
+        ablyChannel.publish("playerJoined", {});
     });
 
     // 加入房间
-    joinRoomBtn.addEventListener("click", () => {
+    joinRoomBtn.addEventListener("click", async () => {
         const inputRoomId = roomIdInput.value.trim();
         if (!inputRoomId) {
             onlineStatus.textContent = "请输入有效的房间号！";
             return;
         }
         roomId = inputRoomId;
-        socket = io(); // 初始化 WebSocket 连接
-        socket.emit("joinRoom", { roomId });
+        ablyChannel = await ably.channels.get(`tic-tac-toe-${roomId}`);
 
-        socket.on("roomJoined", () => {
-            onlineStatus.textContent = `已加入房间: ${roomId}`;
-            initializeBoard();
-        });
-
-        socket.on("makeMove", (data) => {
-            const cell = board.children[data.index];
-            cell.textContent = data.player;
-            cell.classList.add(data.player.toLowerCase());
-            currentPlayer = data.player === "X" ? "O" : "X";
+        ablyChannel.subscribe("makeMove", (message) => {
+            const { index, player } = message.data;
+            const cell = board.children[index];
+            cell.textContent = player;
+            cell.classList.add(player.toLowerCase());
+            currentPlayer = player === "X" ? "O" : "X";
             status.textContent = `当前玩家: ${currentPlayer}`;
         });
 
-        socket.on("gameOver", (data) => {
-            if (data.winner === "draw") {
+        ablyChannel.subscribe("gameOver", (message) => {
+            const { winner } = message.data;
+            if (winner === "draw") {
                 status.textContent = "平局!";
             } else {
-                status.textContent = `${data.winner} 赢了!`;
+                status.textContent = `${winner} 赢了!`;
             }
             gameActive = false;
             resetBtn.style.display = "block";
             replayBtn.style.display = "block";
         });
+
+        ablyChannel.publish("playerJoined", {});
+        onlineStatus.textContent = `已加入房间: ${roomId}`;
+        initializeBoard();
     });
 
     // 重置游戏
@@ -212,8 +218,8 @@ document.addEventListener("DOMContentLoaded", () => {
         resetBtn.style.display = "none";
         replayBtn.style.display = "none";
         initializeBoard();
-        if (gameMode === "twoPlayer" && socket) {
-            socket.emit("resetGame", { roomId });
+        if (gameMode === "twoPlayer" && ablyChannel) {
+            ablyChannel.publish("resetGame", {});
         }
     });
 
