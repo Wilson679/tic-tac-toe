@@ -74,14 +74,14 @@ document.addEventListener("DOMContentLoaded", () => {
     joinRoomBtn.addEventListener("click", () => {
         const roomId = roomIdInput.value.trim();
         if (!roomId) {
+            onlineStatus.textContent = "请输入有效的房间号！";
+            return;
+        }
+        onlineStatus.textContent = `已加入房间: ${roomId}`;
+    });
 
     const gameModeRadios = document.querySelectorAll('input[name="gameMode"]');
     const connectionModeRadios = document.querySelectorAll('input[name="connectionMode"]');
-
-    // 确保私密信息不会被上传
-    // 提醒：不要在代码中访问 Cookies、LocalStorage 或其他敏感信息
-    console.log("提醒：请勿在代码中上传浏览器的私密信息，如 Cookies 或 LocalStorage。");
-
     // 添加私密消息输入框和发送按钮
     const privateMessageContainer = document.createElement("div");
     privateMessageContainer.id = "privateMessageContainer";
