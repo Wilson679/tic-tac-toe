@@ -1,21 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Welcome to Tic Tac Toe!");
-
     const root = document.getElementById("root");
-
-    const container = document.createElement("div");
-    container.className = "container";
-
-    const heading = document.createElement("h1");
-    heading.textContent = "Welcome to Tic-Tac-Toe";
-
-    const paragraph = document.createElement("p");
-    paragraph.textContent = "This is a simple Tic-Tac-Toe game. You can play against a friend or the computer.";
-
-    container.appendChild(heading);
-    container.appendChild(paragraph);
-    root.appendChild(container);
-
     const gameContainer = document.querySelector(".game-container");
     const startGameButton = document.createElement("button");
 
