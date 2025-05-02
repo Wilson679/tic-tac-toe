@@ -1,0 +1,13 @@
+{
+  "build": {
+    "env": {
+      "ABLY_API_KEY": "@ably_api_key"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/script.js",
+      "destination": "/script.js"
+    }
+  ]
+}

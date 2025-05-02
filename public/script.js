@@ -20,7 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let ablyChannel = null; // Ably 通道
 
     // 初始化 Ably 客户端
-    const ably = new Ably.Realtime.Promise({ key: "your-ably-api-key" }); // 替换为您的 Ably API 密钥
+    const ablyApiKey = "__ABLY_API_KEY__"; // 占位符，稍后通过构建时替换
+    const ably = new Ably.Realtime.Promise({ key: ablyApiKey });
 
     // 初始化棋盘
     function initializeBoard() {
