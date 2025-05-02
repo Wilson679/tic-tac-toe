@@ -1,19 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("root");
     const gameContainer = document.querySelector(".game-container");
-    const startGameButton = document.createElement("button");
+    const startGameButton = document.getElementById("startGameBtn");
 
-    // 创建进入游戏的按钮
-    startGameButton.textContent = "进入游戏";
-    startGameButton.style.padding = "10px 20px";
-    startGameButton.style.fontSize = "16px";
-    startGameButton.style.margin = "20px auto";
-    startGameButton.style.display = "block";
-    startGameButton.style.backgroundColor = "#1e88e5";
-    startGameButton.style.color = "white";
-    startGameButton.style.border = "none";
-    startGameButton.style.borderRadius = "5px";
-    startGameButton.style.cursor = "pointer";
+    // 检查按钮是否存在
+    if (!startGameButton) {
+        console.error("无法找到开始游戏按钮，请检查 HTML 文件中的按钮 ID 是否正确。");
+        return;
+    }
 
     // 初始隐藏游戏容器
     gameContainer.style.display = "none";
@@ -23,7 +17,4 @@ document.addEventListener("DOMContentLoaded", () => {
         root.style.display = "none"; // 隐藏欢迎界面
         gameContainer.style.display = "block"; // 显示游戏界面
     });
-
-    // 将按钮添加到欢迎界面
-    root.appendChild(startGameButton);
 });
