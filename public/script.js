@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const board = document.getElementById("board");
     const status = document.getElementById("status");
     const resetBtn = document.getElementById("resetBtn");
-    const replayBtn = document.getElementById("replayBtn"); // 重新开始按钮
+    const replayBtn = document.getElementById("replayBtn");
     const startGameButton = document.getElementById("startGameBtn");
     const roomIdInput = document.getElementById("roomId");
     const joinRoomBtn = document.getElementById("joinRoomBtn");
@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let gameMode = "twoPlayer"; // 默认双人模式
     let difficulty = "easy"; // 默认简单模式
     let roomId = null;
+    let socket = null; // WebSocket 连接
 
     // 初始化棋盘
     function initializeBoard() {
@@ -43,7 +44,10 @@ document.addEventListener("DOMContentLoaded", () => {
             status.textContent = `${currentPlayer} 赢了!`;
             gameActive = false;
             resetBtn.style.display = "block";
-            replayBtn.style.display = "block"; // 显示重新开始按钮
+            replayBtn.style.display = "block";
+            if (gameMode === "twoPlayer" && socket) {
+                socket.emit("gameOver", { roomId, winner: currentPlayer });
+            }
             return;
         }
 
@@ -51,7 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
             status.textContent = "平局!";
             gameActive = false;
             resetBtn.style.display = "block";
-            replayBtn.style.display = "block"; // 显示重新开始按钮
+            replayBtn.style.display = "block";
+            if (gameMode === "twoPlayer" && socket) {
+                socket.emit("gameOver", { roomId, winner: "draw" });
+            }
             return;
         }
 
@@ -59,7 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
             currentPlayer = "O";
             status.textContent = `当前玩家: ${currentPlayer}`;
             setTimeout(computerMove, 500); // 电脑延迟移动
-        } else {
+        } else if (gameMode === "twoPlayer" && socket) {
+            socket.emit("makeMove", { roomId, index: cell.dataset.index, player: currentPlayer });
             currentPlayer = currentPlayer === "X" ? "O" : "X";
             status.textContent = `当前玩家: ${currentPlayer}`;
         }
@@ -133,6 +141,32 @@ document.addEventListener("DOMContentLoaded", () => {
     createRoomBtn.addEventListener("click", () => {
         roomId = Math.random().toString(36).substring(2, 8); // 生成随机房间号
         onlineStatus.textContent = `房间已创建，房间号: ${roomId}`;
+        socket = io(); // 初始化 WebSocket 连接
+        socket.emit("createRoom", { roomId });
+
+        socket.on("playerJoined", () => {
+            onlineStatus.textContent = "玩家已加入，游戏开始！";
+            initializeBoard();
+        });
+
+        socket.on("makeMove", (data) => {
+            const cell = board.children[data.index];
+            cell.textContent = data.player;
+            cell.classList.add(data.player.toLowerCase());
+            currentPlayer = data.player === "X" ? "O" : "X";
+            status.textContent = `当前玩家: ${currentPlayer}`;
+        });
+
+        socket.on("gameOver", (data) => {
+            if (data.winner === "draw") {
+                status.textContent = "平局!";
+            } else {
+                status.textContent = `${data.winner} 赢了!`;
+            }
+            gameActive = false;
+            resetBtn.style.display = "block";
+            replayBtn.style.display = "block";
+        });
     });
 
     // 加入房间
@@ -143,7 +177,32 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         roomId = inputRoomId;
-        onlineStatus.textContent = `已加入房间: ${roomId}`;
+        socket = io(); // 初始化 WebSocket 连接
+        socket.emit("joinRoom", { roomId });
+
+        socket.on("roomJoined", () => {
+            onlineStatus.textContent = `已加入房间: ${roomId}`;
+            initializeBoard();
+        });
+
+        socket.on("makeMove", (data) => {
+            const cell = board.children[data.index];
+            cell.textContent = data.player;
+            cell.classList.add(data.player.toLowerCase());
+            currentPlayer = data.player === "X" ? "O" : "X";
+            status.textContent = `当前玩家: ${currentPlayer}`;
+        });
+
+        socket.on("gameOver", (data) => {
+            if (data.winner === "draw") {
+                status.textContent = "平局!";
+            } else {
+                status.textContent = `${data.winner} 赢了!`;
+            }
+            gameActive = false;
+            resetBtn.style.display = "block";
+            replayBtn.style.display = "block";
+        });
     });
 
     // 重置游戏
@@ -151,16 +210,21 @@ document.addEventListener("DOMContentLoaded", () => {
         currentPlayer = "X";
         gameActive = true;
         resetBtn.style.display = "none";
-        replayBtn.style.display = "none"; // 隐藏重新开始按钮
+        replayBtn.style.display = "none";
         initializeBoard();
+        if (gameMode === "twoPlayer" && socket) {
+            socket.emit("resetGame", { roomId });
+        }
     });
 
     // 重新开始游戏
     replayBtn.addEventListener("click", () => {
-        root.style.display = "block"; // 显示欢迎界面
-        gameContainer.style.display = "none"; // 隐藏游戏界面
-        resetBtn.style.display = "none"; // 隐藏重置按钮
-        replayBtn.style.display = "none"; // 隐藏重新开始按钮
+        currentPlayer = "X";
+        gameActive = true;
+        resetBtn.style.display = "none";
+        replayBtn.style.display = "none";
+        initializeBoard();
+        status.textContent = `当前玩家: ${currentPlayer}`;
     });
 
     // 开始游戏按钮
@@ -172,8 +236,8 @@ document.addEventListener("DOMContentLoaded", () => {
             difficulty = document.querySelector('input[name="difficulty"]:checked').value;
         }
 
-        root.style.display = "none"; // 隐藏欢迎界面
-        gameContainer.style.display = "block"; // 显示游戏界面
+        root.style.display = "none";
+        gameContainer.style.display = "block";
         initializeBoard();
     });
 
