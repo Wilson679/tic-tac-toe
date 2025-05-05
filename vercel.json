@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "build": {
     "env": {
       "ABLY_API_KEY": "@ably_api_key"
