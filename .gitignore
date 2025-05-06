@@ -1,4 +1,6 @@
 .vercel
 node_modules
-.env
 .env.local
+
+# 忽略 .env 文件
+.env

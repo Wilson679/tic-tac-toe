@@ -1,24 +1,23 @@
+/* General styles */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f0f0f0;
-}
-
-h1 {
-  color: #333;
+  background-color: #f4f4f4;
 }
 
 .container {
-  text-align: center;
-  background: #fff;
+  max-width: 600px;
+  margin: 0 auto;
   padding: 20px;
+  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
 }
 
 .options {
@@ -32,10 +31,6 @@ h1 {
   margin: 10px 0;
 }
 
-#difficultyOptions {
-  margin-top: 10px;
-}
-
 label {
   margin-right: 15px;
   cursor: pointer;
@@ -45,20 +40,22 @@ input[type="radio"] {
   margin-right: 5px;
 }
 
+/* Button styles */
 button {
-  padding: 10px 20px;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
   font-size: 16px;
-  margin: 5px;
-  background-color: #1e88e5;
-  color: white;
+  background: #007bff;
+  color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
 button:hover {
-  background-color: #1565c0;
+  background: #0056b3;
 }
 
 button:disabled {
@@ -66,54 +63,33 @@ button:disabled {
   cursor: not-allowed;
 }
 
-#onlineOptions {
-  margin-top: 15px;
-}
-
-#onlineStatus {
-  margin-top: 10px;
-  color: #1e88e5;
-  font-size: 14px;
-}
-
-.game-container {
-  display: none;
-  max-width: 500px;
-  margin: 0 auto;
-  background-color: #ffffff;
-  border: 2px solid #90caf9;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
+/* Game board styles */
 .board {
   display: grid;
-  grid-template-columns: repeat(3, 100px);
-  grid-gap: 5px;
-  justify-content: center;
-  margin: 20px auto;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin: 20px 0;
 }
 
 .cell {
   width: 100px;
   height: 100px;
-  background: #fff;
-  border: 1px solid #ccc;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  background: #eaeaea;
+  border: 1px solid #ccc;
   font-size: 24px;
   font-weight: bold;
   cursor: pointer;
 }
 
 .cell.x {
-  color: #ff0000;
+  color: #ff5722;
 }
 
 .cell.o {
-  color: #0000ff;
+  color: #2196f3;
 }
 
 .cell:hover {
@@ -126,31 +102,4 @@ button:disabled {
   font-weight: bold;
   color: #1e88e5;
   min-height: 36px;
-}
-
-.stats {
-  margin-top: 20px;
-  font-size: 16px;
-  color: #1e88e5;
-}
-
-.stats span {
-  font-weight: bold;
-  color: #0d47a1;
-}
-
-#playAgainBtn {
-  padding: 10px 20px;
-  font-size: 16px;
-  margin: 5px;
-  background-color: #ff9800;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-#playAgainBtn:hover {
-  background-color: #f57c00;
 }

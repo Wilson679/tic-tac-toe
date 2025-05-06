@@ -8,6 +8,8 @@
     "build": "echo 'Static site, no build step required'"
   },
   "dependencies": {
-    "ably": "^2.8.0"
+    "ably": "^2.8.0",
+    "glob": "^11.0.2",
+    "uuid": "^11.1.0"
   }
 }

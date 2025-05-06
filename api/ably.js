@@ -1,20 +1,23 @@
-const express = require('express');
-const Ably = require('ably');
+const Ably = require('ably/promises'); // 使用 promises 版本以支持 async/await
 
-const apiKey = process.env.ABLY_API_KEY;
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
 
-const ably = new Ably.Realtime(apiKey);
-ably.connection.on('connected', () => {
-  console.log('Ably instance connected successfully.');
-});
+  const apiKey = process.env.ABLY_API_KEY;
+  if (!apiKey) {
+    res.status(500).json({ error: 'ABLY_API_KEY is missing in environment variables' });
+    return;
+  }
 
-const app = express();
-app.use(express.json());
-
-// API endpoint to create a token for Ably
-app.get('/api/createToken', (req, res) => {
-  const tokenRequest = ably.auth.createTokenRequest({ clientId: 'tic-tac-toe-client' });
-  res.json(tokenRequest);
-});
-
-module.exports = app;
+  try {
+    const client = new Ably.Realtime.Promise(apiKey); // 使用 Promise 版本的客户端
+    const tokenRequest = await client.auth.createTokenRequest({ clientId: 'tic-tac-toe-client' });
+    res.status(200).json(tokenRequest);
+  } catch (error) {
+    console.error('Error creating Ably token request:', error);
+    res.status(500).json({ error: 'Failed to create Ably token request' });
+  }
+}

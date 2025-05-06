@@ -3,65 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tic-Tac-Toe</title>
+  <title>Tic Tac Toe</title>
   <link rel="stylesheet" href="./styles.css">
-  <script src="./script.js"></script>
+  <script defer src="./script.js"></script>
 </head>
 <body>
+  <h1>Welcome to Tic Tac Toe</h1>
   <div id="root">
     <div class="container">
-      <h1>Welcome to Tic-Tac-Toe</h1>
-      <p>请选择游戏模式和难度。</p>
+      <p>Select game mode and difficulty.</p>
       <div class="options">
+        <!-- Game mode selection -->
         <div class="option-group">
           <label>
             <input type="radio" name="gameMode" value="twoPlayer" checked>
-            双人模式
+            Two Player Mode
           </label>
           <label>
             <input type="radio" name="gameMode" value="singlePlayer">
-            电脑模式
+            Single Player Mode
           </label>
         </div>
+        <!-- Difficulty selection -->
         <div id="difficultyOptions" class="option-group" style="display: none;">
           <label>
             <input type="radio" name="difficulty" value="easy" checked>
-            简单
+            Easy
           </label>
           <label>
             <input type="radio" name="difficulty" value="medium">
-            中等
+            Medium
           </label>
           <label>
             <input type="radio" name="difficulty" value="hard">
-            困难
+            Hard
           </label>
         </div>
-        <div id="connectionModeOptions" class="option-group">
-          <label>
-            <input type="radio" name="connectionMode" value="offline" checked>
-            离线模式
-          </label>
-          <label>
-            <input type="radio" name="connectionMode" value="online">
-            在线模式
-          </label>
-        </div>
+        <!-- Online options -->
         <div id="onlineOptions" style="display: none;">
-          <input type="text" id="roomId" placeholder="房间号">
-          <button id="joinRoomBtn">加入房间</button>
-          <button id="createRoomBtn">创建房间</button>
+          <input type="text" id="roomId" placeholder="Room ID">
+          <button id="joinRoomBtn">Join Room</button>
+          <button id="createRoomBtn">Create Room</button>
           <div id="onlineStatus"></div>
         </div>
       </div>
-      <button id="startGameBtn">开始游戏</button>
+      <button id="startGameBtn">Start Game</button>
     </div>
   </div>
   <div class="game-container">
-    <div id="board" class="board"></div> <!-- 棋盘 -->
-    <div id="status" class="status"></div> <!-- 游戏状态 -->
-    <button id="resetBtn" style="display: none;">重置游戏</button> <!-- 重置按钮 -->
-    <button id="replayBtn" style="display: none;">重新开始</button> <!-- 重新开始按钮 -->
+    <div id="board" class="board"></div>
+    <div id="status" class="status"></div>
+    <button id="resetBtn" style="display: none;">Reset Game</button>
+    <button id="replayBtn" style="display: none;">Replay</button>
   </div>
 </body>
 </html>
