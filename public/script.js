@@ -147,41 +147,31 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // 创建房间
-      function findBestMove() {
-        // 简化的最佳移动逻辑
-        return Array.from(board.children).find(cell => !cell.textContent);
-      }
-
-      // 创建房间
-      createRoomBtn.addEventListener("click", async () => {
+      elements.createRoomBtn.addEventListener("click", async () => {
         roomId = Math.random().toString(36).substring(2, 8); // 生成随机房间号
-        onlineStatus.textContent = `房间已创建，房间号: ${roomId}`;
+        elements.onlineStatus.textContent = `房间已创建，房间号: ${roomId}`;
         ablyChannel = await ably.channels.get(`tic-tac-toe-${roomId}`);
 
         ablyChannel.subscribe("playerJoined", () => {
-          onlineStatus.textContent = "玩家已加入，游戏开始！";
+          elements.onlineStatus.textContent = "玩家已加入，游戏开始！";
           initializeBoard();
         });
 
         ablyChannel.subscribe("makeMove", (message) => {
           const { index, player } = message.data;
-          const cell = board.children[index];
+          const cell = elements.board.children[index];
           cell.textContent = player;
           cell.classList.add(player.toLowerCase());
           currentPlayer = player === "X" ? "O" : "X";
-          status.textContent = `当前玩家: ${currentPlayer}`;
+          elements.status.textContent = `当前玩家: ${currentPlayer}`;
         });
 
         ablyChannel.subscribe("gameOver", (message) => {
           const { winner } = message.data;
-          if (winner === "draw") {
-            status.textContent = "平局!";
-          } else {
-            status.textContent = `${winner} 赢了!`;
-          }
+          elements.status.textContent = winner === "draw" ? "平局!" : `${winner} 赢了!`;
           gameActive = false;
-          resetBtn.style.display = "block";
-          replayBtn.style.display = "block";
+          elements.resetBtn.style.display = "block";
+          elements.replayBtn.style.display = "block";
         });
 
         ablyChannel.publish("playerJoined", {});

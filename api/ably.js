@@ -1,4 +1,4 @@
-const Ably = require('ably/promises'); // 使用 promises 版本以支持 async/await
+const Ably = require('ably/promises');
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const client = new Ably.Realtime.Promise(apiKey); // 使用 Promise 版本的客户端
+    const client = new Ably.Realtime.Promise(apiKey);
     const tokenRequest = await client.auth.createTokenRequest({ clientId: 'tic-tac-toe-client' });
     res.status(200).json(tokenRequest);
   } catch (error) {

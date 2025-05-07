@@ -4,3 +4,6 @@ node_modules
 
 # 忽略 .env 文件
 .env
+.env.production.local
+.env.development.local
+.env.test.local
